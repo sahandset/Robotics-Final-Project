@@ -1,0 +1,78 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.9999912212310618 0.004189538703584417 7.229288316524241e-05 1.5072983746002961
+  position 0.4832873129565826 4.587611561688315 0.2992612688953076
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+E-puck {
+  translation -0.625 0 -0.95
+  name "e-puck(1)"
+}
+E-puck {
+  translation -0.625 0 -0.75
+  name "e-puck(2)"
+}
+E-puck {
+  translation 0.875 0 -0.95
+  name "e-puck(3)"
+}
+E-puck {
+  translation -0.375 0 -0.95
+  name "e-puck(4)"
+}
+E-puck {
+  translation -0.125 0 -0.95
+  name "e-puck(5)"
+}
+E-puck {
+  translation -0.375 0 -0.75
+  name "e-puck(6)"
+}
+E-puck {
+  translation -0.125 0 -0.75
+  name "e-puck(7)"
+}
+E-puck {
+  translation 0.375 0 -0.95
+  name "e-puck(8)"
+}
+E-puck {
+  translation -0.875 0 -0.95
+}
+E-puck {
+  translation -0.875 0 -0.75
+  name "e-puck(9)"
+}
+E-puck {
+  translation 0.125 0 -0.95
+  name "e-puck(10)"
+}
+E-puck {
+  translation 0.125 0 -0.75
+  name "e-puck(11)"
+}
+E-puck {
+  translation 0.375 0 -0.75
+  name "e-puck(12)"
+}
+E-puck {
+  translation 0.625 0 -0.95
+  name "e-puck(13)"
+}
+E-puck {
+  translation 0.625 0 -0.75
+  name "e-puck(14)"
+}
+E-puck {
+  translation 0.875 0 -0.75
+  name "e-puck(15)"
+}
