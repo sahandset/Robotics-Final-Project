@@ -1,0 +1,107 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  info [
+    "CSCI 3302 Lab 2: Odometry"
+    "Prof. Brad Hayes, University of Colorado Boulder, Fall 2020"
+  ]
+  title "E-Puck"
+  coordinateSystem "NUE"
+  lineScale 0.04
+}
+Viewpoint {
+  orientation 0.9999983531374705 -0.0013157605655103853 -0.0012499985924629975 4.763637335683052
+  position 0.04407355191021176 3.1034271894712355 0.06281433399744228
+  follow "number 2"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 0.9 0.9
+  floorAppearance PBRAppearance {
+    baseColorMap ImageTexture {
+      url [
+        "texture/varnished_pine_base_color.jpg"
+      ]
+    }
+    roughness 0.2
+    metalness 0
+  }
+  wallHeight 0.05
+}
+DEF EPUCK E-puck {
+  translation -0.625 0 -0.75
+  rotation -0.0008689708074152353 0.9999996042037498 -0.00019100282697135455 3.14
+  name "number 2"
+  controller "robot2"
+  supervisor TRUE
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+DEF EPUCK E-puck {
+  translation -0.625 0 -0.95
+  rotation 0.0006073676674146649 0.9999998140199898 -5.535794599765065e-05 3.14
+  name "e-puck(1)"
+  controller "robot1"
+  supervisor TRUE
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+DEF EPUCK E-puck {
+  rotation 0.0006073676674146649 0.9999998140199898 -5.535794599765065e-05 3.14
+  name "abc"
+  controller "robot3"
+  supervisor TRUE
+  groundSensorsSlot [
+    Compass {
+    }
+    E-puckGroundSensors {
+    }
+  ]
+}
+DEF Goal Solid {
+  translation -0.5 0 -0.5
+  scale 0.1 0.1 0.1
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "texture/goal_mark.png"
+          ]
+          filtering 0
+        }
+        metalness 0
+      }
+      geometry Plane {
+      }
+    }
+  ]
+  name "Goal"
+}
+DEF Goal Solid {
+  translation -0.25 0 -0.5
+  scale 0.1 0.1 0.1
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "texture/goal_mark.png"
+          ]
+          filtering 0
+        }
+        metalness 0
+      }
+      geometry Plane {
+      }
+    }
+  ]
+  name "Goal(1)"
+}
