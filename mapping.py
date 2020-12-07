@@ -1,10 +1,13 @@
 def mapping (robot_coords, target_coords):
+    # Initialize empty dictionary
     my_dictionary = {}
     # Ensures that we have enough robots to make our shape
     if (len(robot_coords) == len(target_coords)):
         for i in range(len(robot_coords)):
+            # Populate Dictionary
             my_dictionary[robot_coords[i]]=target_coords[i]
 
+    # Return Dictionary 
     return my_dictionary
 
 
