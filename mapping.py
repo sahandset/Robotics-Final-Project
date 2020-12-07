@@ -9,6 +9,6 @@ def mapping (robot_coords, target_coords):
 
 
 # Test 
-robot_coords = [(0,1,0),(0,2,4),(0,5,9)]
-target_coords = [(4,1,8),(5,3,6),(5,3,0)]
+# robot_coords = [(0,1,0),(0,2,4),(0,5,9)]
+# target_coords = [(4,1,8),(5,3,6),(5,3,0)]
 
