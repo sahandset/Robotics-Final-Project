@@ -30,6 +30,11 @@ EPUCK_WHEEL_RADIUS = 0.0205 # ePuck's wheels are 0.041m in diameter.
 
 # get the time step of the current world.
 SIM_TIMESTEP = int(robot.getBasicTimeStep())
+from controller import Compass
+# get robot's Compass device
+compass = robot.getCompass("compass")
+# enable the Compass
+compass.enable(SIM_TIMESTEP)
 
 # Initialize Motors
 leftMotor = robot.getMotor('left wheel motor')
@@ -129,22 +134,24 @@ def main():
         update_odometry(left_wheel_direction, right_wheel_direction, time_elapsed)
         last_odometry_update_time = robot.getTime()
        
+       
         if state == "move_to_target": 
             sub_state = "starting" 
             
             ## These should be adjused based on which e-puck is currently located and it's target goal
-            # goal_angle = angle((-0.625,-0.95), (-.25,-.5))
-            goal_angle=.525
-            goal_dist = dist((-0.625,-0.95), (-.25,-.5))
+            print("supposed",angle((-0.625,-0.95), (-.25,-.5)))
+            goal_angle=.543
+            goal_dist = dist((-0.625,-0.95), (-.25,-.5))+.085
             ##
+            print("compass:", compass.getValues())
             
             if sub_state == "starting":
             
                 # turn if the robot is not directly facing the goal angle
-                if pose_theta < goal_angle:
+                guess = abs(compass.getValues()[2])
+                print("guess", guess)
+                if guess < goal_angle:
                 
-                    # print("1")
-                    # print("oipo", goal_angle)
                     leftMotor.setVelocity( -1* (leftMotor.getMaxVelocity()))
                     rightMotor.setVelocity( (rightMotor.getMaxVelocity()))
                     left_wheel_direction = -WHEEL_FORWARD 
