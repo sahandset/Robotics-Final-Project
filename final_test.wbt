@@ -38,6 +38,8 @@ DEF EPUCK E-puck {
   controller "robot2"
   supervisor TRUE
   groundSensorsSlot [
+    Compass {
+    }
     E-puckGroundSensors {
     }
   ]
@@ -49,6 +51,8 @@ DEF EPUCK E-puck {
   controller "robot1"
   supervisor TRUE
   groundSensorsSlot [
+    Compass {
+    }
     E-puckGroundSensors {
     }
   ]
