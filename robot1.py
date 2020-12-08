@@ -1,14 +1,13 @@
-##TODO : add this controller to the epucks in the final world
+
 import math
 from controller import Robot, Motor, DistanceSensor
 # import csci3302_lab3_supervisor
 import numpy as np
 
 # Robot Pose Values
-
-pose_x = 0
-pose_y = 0
-pose_theta = 0
+pose_x = .375
+pose_y = 1.95
+pose_theta =  3 * math.pi / 2
 
 # Constants to help with the Odometry update
 WHEEL_FORWARD = 1
@@ -19,10 +18,9 @@ state = "send_pose" # End with the more complex feedback control method!
 sub_state = "bearing" # TODO: It may be helpful to use sub_state to designate operation modes within the "turn_drive_turn_control" state
 
 # create the Robot instance.
-
-robot = Robot()
 # csci3302_lab3_supervisor.init_supervisor()
 # robot = csci3302_lab3_supervisor.supervisor
+robot = Robot()
 
 EPUCK_MAX_WHEEL_SPEED = 0.12880519 # Unnecessarily precise ePuck speed in m/s. REMINDER: motor.setVelocity() takes ROTATIONS/SEC as param, not m/s.
 EPUCK_AXLE_DIAMETER = 0.053 # ePuck's wheels are 53mm apart.
@@ -30,11 +28,6 @@ EPUCK_WHEEL_RADIUS = 0.0205 # ePuck's wheels are 0.041m in diameter.
 
 # get the time step of the current world.
 SIM_TIMESTEP = int(robot.getBasicTimeStep())
-from controller import Compass
-# get robot's Compass device
-compass = robot.getCompass("compass")
-# enable the Compass
-compass.enable(SIM_TIMESTEP)
 
 # Initialize Motors
 leftMotor = robot.getMotor('left wheel motor')
@@ -44,63 +37,30 @@ rightMotor.setPosition(float('inf'))
 leftMotor.setVelocity(0.0)
 rightMotor.setVelocity(0.0)
 
+
 def update_odometry(left_wheel_direction, right_wheel_direction, time_elapsed):
     '''
-    #Given the amount of time passed and the direction each wheel was rotating,
-    #update the robot's pose information accordingly
+    Given the amount of time passed and the direction each wheel was rotating,
+    update the robot's pose information accordingly
     '''
     global pose_x, pose_y, pose_theta, EPUCK_MAX_WHEEL_SPEED, EPUCK_AXLE_DIAMETER
-    
-    
-    r = 0
-    l = 0
-      
-    Ld = EPUCK_MAX_WHEEL_SPEED*time_elapsed *left_wheel_direction
-    Rd = EPUCK_MAX_WHEEL_SPEED*time_elapsed *right_wheel_direction
-    x = (Ld+Rd)/2
-    theta =(Rd-Ld)/EPUCK_AXLE_DIAMETER * .13368
-    
-    pose_theta += theta
-    pose_x = pose_x + ( (math.cos(pose_theta)* x))
-    pose_y = pose_y + (-( math.sin(pose_theta)* x))
-    pose_x = round(pose_x, 3)
-    pose_y = round(pose_y, 3)
-    pose_theta = round(pose_theta, 3)
-    
-    # print(pose_x, pose_y, pose_theta)
-    
-    
-######## my helpers ##############
+    pose_theta += (right_wheel_direction - left_wheel_direction) * time_elapsed * EPUCK_MAX_WHEEL_SPEED / EPUCK_AXLE_DIAMETER;
+    pose_x += math.cos(pose_theta) * time_elapsed * EPUCK_MAX_WHEEL_SPEED * (left_wheel_direction + right_wheel_direction)/2.;
+    pose_y += math.sin(pose_theta) * time_elapsed * EPUCK_MAX_WHEEL_SPEED * (left_wheel_direction + right_wheel_direction)/2.;
+    pose_theta = get_bounded_theta(pose_theta)
 
-
-def inBound(pT, gA):
-    if (gA+.005 > pT) and (pT > gA -.005):
-        return True
-    else:
-        return False 
-    
-def dotproduct(v1, v2):
-  return sum((a*b) for a, b in zip(v1, v2))
-    
-def length(v):
-  return math.sqrt(dotproduct(v, v))
-  
-def angle(A, B):
-    
-    xDiff = B[0] - A[0]
-    yDiff = B[1] - A[1]
-    return (math.atan2(yDiff, xDiff))
-
-def dist(pointA, pointB):
-    return (math.hypot(pointB[0] - pointA[0], pointB[1] - pointA[1]))
-
-########################################################
+def get_bounded_theta(theta):
+    '''
+    Returns theta bounded in [-PI, PI]
+    '''
+    while theta > math.pi: theta -= 2.*math.pi
+    while theta < -math.pi: theta += 2.*math.pi
+    return theta
 
 def main():
     global robot, state, sub_state
     global leftMotor, rightMotor, SIM_TIMESTEP, WHEEL_FORWARD, WHEEL_STOPPED, WHEEL_BACKWARDS
     global pose_x, pose_y, pose_theta
-    check = False
 
     last_odometry_update_time = None
 
@@ -108,24 +68,14 @@ def main():
     left_wheel_direction = WHEEL_STOPPED
     right_wheel_direction = WHEEL_STOPPED
 
-    
-    target_pose = None
-    
-    if state == "send_pose":
-            ### post request w current location
-        state = "no_target"
-           
-    if state == "no_target":
-        ### get request for target
-         if target_pose is None:
-    
-            state =  "move_to_target"
-            
+    # Important IK Variable storing final desired pose
+    target_pose = None # Populated by the supervisor, only when the target is moved.
+
 
     # Sensor burn-in period
     for i in range(10): robot.step(SIM_TIMESTEP)
    
-    # Main Control :
+    # Main Control Loop:
     while robot.step(SIM_TIMESTEP) != -1:
         # Odometry update code -- do not modify
         if last_odometry_update_time is None:
@@ -133,60 +83,65 @@ def main():
         time_elapsed = robot.getTime() - last_odometry_update_time
         update_odometry(left_wheel_direction, right_wheel_direction, time_elapsed)
         last_odometry_update_time = robot.getTime()
+
+        # Get target location -- do not modify
+        if target_pose is None:
+            target_pose = [0.75,1.5,-.5]
+            # target_pose = csci3302_lab3_supervisor.supervisor_get_relative_target_pose()
+            # print("New IK Goal Received! Target: %s" % str(target_pose))
+
+        # Your code starts here
        
        
-        if state == "move_to_target": 
-            sub_state = "starting" 
+        # Error
+        bearing_error = math.atan2((target_pose[1] - pose_y),(target_pose[0] - pose_x)) - pose_theta
+        distance_error = math.sqrt(((pose_x - target_pose[0])**2)+((pose_y - target_pose[1])**2))
+        heading_error = target_pose[2] - pose_theta
+      
+        if state == "send_pose":
+            ### post request w current location
+            state = "no_target"
+           
+        elif state == "no_target":
+            ### get request for target
+            state =  "move_to_target"
             
-            ## These should be adjused based on which e-puck is currently located and it's target goal
-            print("supposed",angle((-0.625,-0.95), (-.25,-.5)))
-            goal_angle=.543
-            goal_dist = dist((-0.625,-0.95), (-.25,-.5))+.085
-            ##
-            print("compass:", compass.getValues())
+        elif state == "move_to_target":          
+            p1= .1
+            p2= .1
+            p3= .1
+            x= p1* distance_error 
             
-            if sub_state == "starting":
-            
-                # turn if the robot is not directly facing the goal angle
-                guess = abs(compass.getValues()[2])
-                print("guess", guess)
-                if guess < goal_angle:
+            if (distance_error > 0.02):
                 
-                    leftMotor.setVelocity( -1* (leftMotor.getMaxVelocity()))
-                    rightMotor.setVelocity( (rightMotor.getMaxVelocity()))
-                    left_wheel_direction = -WHEEL_FORWARD 
-                    right_wheel_direction = WHEEL_FORWARD 
-                    
-                else: 
-                    sub_state = "stopped"
-                    sub_state = "towards"
-            
-            #if our angle has been met, go until we reach out goal
-                   
-            if sub_state == "towards":
-            
-                 #TURNING
+                 phi_l = (x - (bearing_error*EPUCK_AXLE_DIAMETER)/2)/EPUCK_WHEEL_RADIUS
+                 phi_r = (x + (bearing_error*EPUCK_AXLE_DIAMETER)/2)/EPUCK_WHEEL_RADIUS
+                 L = (phi_l / (abs(phi_l) + abs(phi_r)))
+                 R = (phi_r / (abs(phi_l) + abs(phi_r)))
+                 leftMotor.setVelocity( leftMotor.getMaxVelocity() * L)
+                 rightMotor.setVelocity( rightMotor.getMaxVelocity() * R)
+                 left_wheel_direction = WHEEL_FORWARD * L 
+                 right_wheel_direction = WHEEL_FORWARD * R 
+            elif  (distance_error <= 0.001):
+
+                 phi_l = (x - (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
+                 phi_r = (x + (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
+                 L = (phi_l / (abs(phi_l) + abs(phi_r)))
+                 R = (phi_r / (abs(phi_l) + abs(phi_r)))
                  
-                if  math.sqrt((pose_x**2 + pose_y**2)) < goal_dist:
-                    
-                    leftMotor.setVelocity(leftMotor.getMaxVelocity())
-                    rightMotor.setVelocity(rightMotor.getMaxVelocity())  
-                    left_wheel_direction = WHEEL_FORWARD 
-                    right_wheel_direction = WHEEL_FORWARD  
-                    
-                            
-                else:
-                    sub_state = "stopped"
-                    
-                    
-            if sub_state == "stopped":
-            
-                leftMotor.setVelocity(0)
-                rightMotor.setVelocity(0)
-                left_wheel_direction = WHEEL_STOPPED
-                right_wheel_direction = WHEEL_STOPPED
-            
-                    
+                 leftMotor.setVelocity(leftMotor.getMaxVelocity() * L)
+                 rightMotor.setVelocity(rightMotor.getMaxVelocity()* R)
+                 left_wheel_direction = WHEEL_FORWARD * L 
+                 right_wheel_direction = WHEEL_FORWARD *  R 
+            if abs(distance_error) < 0.001 and abs(heading_error) < 0.001:
+                 leftMotor.setVelocity(0)
+                 rightMotor.setVelocity(0)
+                 left_wheel_direction = WHEEL_STOPPED
+                 right_wheel_direction = WHEEL_STOPPED
+                 
+                 state = ""
+                 
+        print("Current pose: [%5f, %5f, %5f]\t\t Target pose: [%5f, %5f, %5f]\t\t Errors: [%5f, %5f, %5f]" % (pose_x, pose_y, pose_theta, target_pose[0], target_pose[1], target_pose[2],bearing_error, distance_error, heading_error))
 
 if __name__ == "__main__":
     main()
