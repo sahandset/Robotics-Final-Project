@@ -30,6 +30,12 @@ EPUCK_WHEEL_RADIUS = 0.0205 # ePuck's wheels are 0.041m in diameter.
 
 # get the time step of the current world.
 SIM_TIMESTEP = int(robot.getBasicTimeStep())
+from controller import Compass
+# get robot's Compass device
+compass = robot.getCompass("compass")
+# enable the Compass
+compass.enable(SIM_TIMESTEP)
+
 
 # Initialize Motors
 leftMotor = robot.getMotor('left wheel motor')
@@ -107,6 +113,7 @@ def main():
     # Keep track of which direction each wheel is turning
     left_wheel_direction = WHEEL_STOPPED
     right_wheel_direction = WHEEL_STOPPED
+    
 
     
     target_pose = None
@@ -134,6 +141,7 @@ def main():
         time_elapsed = robot.getTime() - last_odometry_update_time
         update_odometry(left_wheel_direction, right_wheel_direction, time_elapsed)
         last_odometry_update_time = robot.getTime()
+        # print("compass:", compass.getValues())
        
    
         
@@ -141,13 +149,18 @@ def main():
             sub_state = "starting" 
             
             ## These should be adjused based on which e-puck is currently located and it's target goal
-            goal_angle = angle((-0.625,-0.75), (-.5,-.5))
-            goal_angle=.4
-            goal_dist = dist((-0.625,-0.75), (-.5,-.5))
-            ##
+            # goal_angle = angle((-0.625,-0.75), (-.5,-.5))
+            
+            ###################################
+                ## ADJUST THESE VALUES ##
+            goal_angle=.37
+            goal_dist = dist((-0.625,-0.75), (-.5,-.5)) +.04
+            
+            ####################################
             if sub_state == "starting":
-                 #TURNING
-                if pose_theta < goal_angle:
+                guess2 = abs(compass.getValues()[2])
+                print("guess2", guess2)
+                if guess2 < goal_angle:
                 
               
                     leftMotor.setVelocity( -1* (leftMotor.getMaxVelocity()))
