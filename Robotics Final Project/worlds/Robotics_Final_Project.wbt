@@ -1,0 +1,113 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.9999912329092673 0.004186705191578467 7.48614877438695e-05 1.5085483636341368
+  position -0.12579391457028438 4.585055614479667 0.37894198638656973
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+E-puck {
+  translation -0.625 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(1)"
+  controller "robot_2"
+}
+E-puck {
+  translation -0.625 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(2)"
+  controller "robot_10"
+}
+E-puck {
+  translation 0.875 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(3)"
+  controller "robot_8"
+}
+E-puck {
+  translation -0.375 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(4)"
+  controller "robot_3"
+}
+E-puck {
+  translation -0.125 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(5)"
+  controller "robot_4"
+}
+E-puck {
+  translation -0.375 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(6)"
+  controller "robot_11"
+}
+E-puck {
+  translation -0.125 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(7)"
+  controller "robot_12"
+}
+E-puck {
+  translation 0.375 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(8)"
+  controller "robot_6"
+  controllerArgs [
+    ""
+  ]
+}
+E-puck {
+  translation -0.875 0 -0.95
+  rotation 0 1 0 3.14159
+  controller "robot_1"
+}
+E-puck {
+  translation -0.875 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(9)"
+  controller "robot_9"
+}
+E-puck {
+  translation 0.125 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(10)"
+  controller "robot_5"
+}
+E-puck {
+  translation 0.125 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(11)"
+  controller "robot_13"
+}
+E-puck {
+  translation 0.375 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(12)"
+  controller "robot_14"
+}
+E-puck {
+  translation 0.625 0 -0.95
+  rotation 0 1 0 3.14159
+  name "e-puck(13)"
+  controller "robot_7"
+}
+E-puck {
+  translation 0.625 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(14)"
+  controller "robot_15"
+}
+E-puck {
+  translation 0.875 0 -0.75
+  rotation 0 1 0 3.14159
+  name "e-puck(15)"
+  controller "robot_16"
+}
