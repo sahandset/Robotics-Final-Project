@@ -60,6 +60,7 @@ def get_bounded_theta(theta):
     while theta < -math.pi: theta += 2.*math.pi
     return theta
 
+
 def main():
     global robot, state, sub_state
     global leftMotor, rightMotor, SIM_TIMESTEP, WHEEL_FORWARD, WHEEL_STOPPED, WHEEL_BACKWARDS
@@ -78,8 +79,11 @@ def main():
     # Sensor burn-in period
     for i in range(10): robot.step(SIM_TIMESTEP)
 
+
+    time_since_last_get = 0
     # Main Control Loop:
     while robot.step(SIM_TIMESTEP) != -1:
+        server_x = None
         # Odometry update code -- do not modify
         if last_odometry_update_time is None:
             last_odometry_update_time = robot.getTime()
@@ -103,12 +107,28 @@ def main():
 
         if state == "send_pose":
             ### post request w current location
-            requests.post('http://127.0.0.1:5000/post_coordinates',data={'coordinates': str((pose_x,pose_y))})
+            server_x = requests.post('http://127.0.0.1:5000/post_coordinates',data={'coordinates': str((pose_x,pose_y))})
             state = "no_target"
 
         elif state == "no_target":
             ### get request for target
-            state =  "move_to_target"
+            if time_since_last_get > 0.2:
+                time_since_last_get = 0.0
+                target_str_x = requests.get('http://127.0.0.1:5000/get_target', cookies=server_x.cookies)
+                try:
+                    target_pose = eval(target_str_x.text)
+                    state =  "move_to_target"
+                except SyntaxError, err:
+                    pass
+            else:
+                time_since_last_get += SIM_TIMESTEP / 1000.0
+        
+                
+
+
+
+
+
 
         elif state == "move_to_target":
             p1= .1
@@ -127,23 +147,27 @@ def main():
                  left_wheel_direction = WHEEL_FORWARD * L
                  right_wheel_direction = WHEEL_FORWARD * R
             elif  (distance_error <= 0.001):
+                leftMotor.setVelocity(0)
+                rightMotor.setVelocity(0)
+                left_wheel_direction = WHEEL_STOPPED
+                right_wheel_direction = WHEEL_STOPPED
+            
+                state = "send_pose"
 
-                 phi_l = (x - (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
-                 phi_r = (x + (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
-                 L = (phi_l / (abs(phi_l) + abs(phi_r)))
-                 R = (phi_r / (abs(phi_l) + abs(phi_r)))
-
-                 leftMotor.setVelocity(leftMotor.getMaxVelocity() * L)
-                 rightMotor.setVelocity(rightMotor.getMaxVelocity()* R)
-                 left_wheel_direction = WHEEL_FORWARD * L
-                 right_wheel_direction = WHEEL_FORWARD *  R
-            if abs(distance_error) < 0.001 and abs(heading_error) < 0.001:
-                 leftMotor.setVelocity(0)
-                 rightMotor.setVelocity(0)
-                 left_wheel_direction = WHEEL_STOPPED
-                 right_wheel_direction = WHEEL_STOPPED
-
-                 state = ""
+            #      phi_l = (x - (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
+            #      phi_r = (x + (((p3*heading_error)+(p2*bearing_error))*EPUCK_AXLE_DIAMETER/2)/EPUCK_WHEEL_RADIUS)
+            #      L = (phi_l / (abs(phi_l) + abs(phi_r)))
+            #      R = (phi_r / (abs(phi_l) + abs(phi_r)))
+            # 
+            #      leftMotor.setVelocity(leftMotor.getMaxVelocity() * L)
+            #      rightMotor.setVelocity(rightMotor.getMaxVelocity()* R)
+            #      left_wheel_direction = WHEEL_FORWARD * L
+            #      right_wheel_direction = WHEEL_FORWARD *  R
+            # if abs(distance_error) < 0.001 and abs(heading_error) < 0.001:
+            #      leftMotor.setVelocity(0)
+            #      rightMotor.setVelocity(0)
+            #      left_wheel_direction = WHEEL_STOPPED
+            #      right_wheel_direction = WHEEL_STOPPED
 
         print("Current pose: [%5f, %5f, %5f]\t\t Target pose: [%5f, %5f, %5f]\t\t Errors: [%5f, %5f, %5f]" % (pose_x, pose_y, pose_theta, target_pose[0], target_pose[1], target_pose[2],bearing_error, distance_error, heading_error))
 
