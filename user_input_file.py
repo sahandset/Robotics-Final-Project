@@ -8,6 +8,10 @@ user_shape = input('Please type in a shape: ').split()[0].lower()
 
 while user_shape not in shape.keys():
     print("Shape requested is not available (available shapes: Square, Circle, Triangle)" + "\ns")
-    user_shape = input('Please type in a shape: ').split()[0].lower()
+    continue_ = input("Would you like to try again? ")
+    if continue_:
+        user_shape = input('Please type in a shape: ').split()[0].lower()
+    else:
+        break
 
 # TODO Send shape[user_shape] to server 
