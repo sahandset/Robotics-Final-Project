@@ -4,8 +4,10 @@ shape = {
     circle: [(1,1.5), (1.15,1.5), (1.35,1.35), (1.5,1.15), (1.5,1), (1.5,0.85), (1.35,0.65), (1.15,0.5), (1,0.5), (0.85,0.5), (0.65,0.65), (0.5,0.85), (0.5,1), (0.5,1.15), (0.65,1.35), (0.85,1.5)]
 }
 
-while input('Please type in a shape: ').split()[0].lower() not in shape.keys():
-    print("Shape requested is not available (available shapes: Square, Circle, Triangle)")
-    
+user_shape = input('Please type in a shape: ').split()[0].lower()
+
+while user_shape not in shape.keys():
+    print("Shape requested is not available (available shapes: Square, Circle, Triangle)" + "\ns")
+    user_shape = input('Please type in a shape: ').split()[0].lower()
 
 # TODO Send shape[user_shape] to server 
